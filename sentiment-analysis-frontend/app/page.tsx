@@ -1,9 +1,11 @@
 'use client';
 import { useState, FormEvent, ChangeEvent } from "react";
+import { Info } from "lucide-react";
 
 interface PredictionSuccess {
-  predicted_label: number;
+  predicted_label: number | "uncertain";  
   confidence: number;
+  warning?: string;  
 }
 
 interface PredictionError {
@@ -21,7 +23,7 @@ export default function Home() {
   const [touched, setTouched] = useState<boolean>(false);
   const [prediction, setPrediction] = useState<PredictionResult | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-
+  const [showTooltip, setShowTooltip] = useState<boolean>(false);
   const isReviewEmpty = review.trim().length === 0;
   const showError = touched && isReviewEmpty;
 
@@ -67,7 +69,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#0A1929]">
       <div className="p-8 max-w-2xl mx-auto">
-        {/* Welcome Header Section */}
+        {/* Header */}
         <div className="text-center mb-8 p-6 bg-[#0F2942] rounded-lg border border-[#1E4976]">
           <h1 className="text-3xl font-bold mb-3 text-white">
             Restaurant Review Sentiment Analysis
@@ -78,12 +80,32 @@ export default function Home() {
         </div>
 
         <form onSubmit={handleEvaluate} className="space-y-4">
-          <label 
-            htmlFor="review" 
-            className="block mb-2 text-lg text-gray-200"
-          >
-            Enter your restaurant review:
-          </label>
+          <div className="flex items-center gap-2 relative">
+            <label 
+              htmlFor="review" 
+              className="block text-lg text-gray-200"
+            >
+              Enter your restaurant review:
+            </label>
+            <div 
+              className="relative"
+              onMouseEnter={() => setShowTooltip(true)}
+              onMouseLeave={() => setShowTooltip(false)}
+            >
+              <Info className="w-4 h-4 text-gray-400 cursor-help" />
+              {showTooltip && (
+                <div className="absolute z-50 left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-3 bg-[#0F2942] text-gray-200 text-sm rounded-md border border-[#1E4976] shadow-lg">
+                  <p>
+                    Please provide a genuine restaurant review for best results. 
+                    Simple words, test inputs, or special characters may not be processed correctly.
+                  </p>
+                  <div className="absolute left-1/2 -bottom-2 -translate-x-1/2 border-8 border-transparent border-t-[#1E4976]" />
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {/* Rest of your form */}
           <div className="space-y-1">
             <textarea
               id="review"
@@ -102,6 +124,8 @@ export default function Home() {
               <p className="text-red-500 text-sm">*The review can't be empty</p>
             )}
           </div>
+
+          {/* Buttons */}
           <div className="flex space-x-4">
             <button 
               type="submit" 
@@ -120,6 +144,7 @@ export default function Home() {
           </div>
         </form>
 
+        {/* Results */}
         {prediction && (
           <div className="mt-8 p-6 bg-[#0F2942] rounded-lg border border-[#1E4976]">
             <h2 className="text-xl font-bold mb-4 text-white">Evaluation Result:</h2>
@@ -129,8 +154,18 @@ export default function Home() {
               <div className="space-y-2">
                 <p>
                   <strong className="text-gray-200">Sentiment:</strong>{' '}
-                  <span className={prediction.predicted_label === 1 ? "text-green-400" : "text-red-400"}>
-                    {prediction.predicted_label === 1 ? "Positive" : "Negative"}
+                  <span className={
+                    typeof prediction.predicted_label === 'number'
+                      ? prediction.predicted_label === 1 
+                        ? "text-green-400" 
+                        : "text-red-400"
+                      : "text-yellow-400"  // Color for uncertain case
+                  }>
+                    {typeof prediction.predicted_label === 'number'
+                      ? prediction.predicted_label === 1 
+                        ? "Positive" 
+                        : "Negative"
+                      : "Uncertain"}
                   </span>
                 </p>
                 <p>
@@ -139,6 +174,11 @@ export default function Home() {
                     {(prediction.confidence * 100).toFixed(2)}%
                   </span>
                 </p>
+                {prediction.warning && (
+                  <p className="text-yellow-400 text-sm mt-2">
+                    ⚠️ {prediction.warning}
+                  </p>
+                )}
               </div>
             )}
           </div>
