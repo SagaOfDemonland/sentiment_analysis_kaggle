@@ -28,6 +28,7 @@ wheels/
 venv/
 env/
 ENV/
+sentiment_analysis_kaggle_venv/
 
 # IDE
 .idea/
@@ -36,12 +37,12 @@ ENV/
 *.swo
 
 # Model files and data
-data/raw/*
-data/processed/*
-data/models/*
-!data/raw/.gitkeep
-!data/processed/.gitkeep
-!data/models/.gitkeep
+# data/raw/*
+# data/processed/*
+# data/models/*
+# !data/raw/.gitkeep
+# !data/processed/.gitkeep
+# !data/models/.gitkeep
 
 # Logs
 *.log
