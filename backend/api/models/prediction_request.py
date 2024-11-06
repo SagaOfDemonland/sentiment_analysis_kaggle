@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional,Union
 class PredictionRequest(BaseModel):
     text: Optional[str] = Field(
         None, 
@@ -8,7 +8,7 @@ class PredictionRequest(BaseModel):
     )
 
 class PredictionResponse(BaseModel):
-    predicted_label: Optional[int] = Field(
+    predicted_label: Optional[Union[int, str]] = Field(
         None, 
         example=1, 
         description="The predicted sentiment label. 1 for positive and 0 for negative sentiment."
